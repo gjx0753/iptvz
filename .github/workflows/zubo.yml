@@ -8,32 +8,33 @@ on:
 jobs:
   run-script:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0   
-      
+        uses: actions/checkout@v5          # ← v4 → v5（支持 Node.js 24）
+
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5       # ← 已是 v5，确认即可
         with:
-          python-version: 3.11
+          python-version: '3.11'
+          cache: 'pip'
 
       - name: Install dependencies
-        run: |
-          pip install -r requirements.txt
+        run: pip install -r requirements.txt
 
       - name: 获取组播源
-        run: |
-          cd $GITHUB_WORKSPACE
-          python ./zubo.py
+        run: python ./zubo.py
 
       - name: 更新组播源
         run: |
-          git pull
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add .
-          git commit -m "更新组播源"
-          git push
+          if ! git diff --staged --quiet; then
+            git commit -m "更新组播源 $(date -u '+%Y-%m-%d %H:%M UTC')"
+            git push
+          else
+            echo "没有变更，跳过提交"
+          fi
