@@ -3,26 +3,32 @@ name: rm
 on:
   workflow_dispatch:
 
+# 添加写入权限，否则 git push 会失败
+permissions:
+  contents: write
+
 jobs:
   run-script:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v3
+        # 核心修复：升级到 v4 以支持 Node.js 24
+        uses: actions/checkout@v4
         with:
-          fetch-depth: 0   
+          fetch-depth: 0
       
-      - name: 
+      - name: Delete Config Files
         run: |
           cd $GITHUB_WORKSPACE
           rm -rf *_config.txt
 
-      - name: 更新组播源
+      - name: Update and Push
         run: |
           git pull
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add .
-          git commit -m "..."
+          # || true 的作用是：如果没有变更（commit为空），也不会报错退出
+          git commit -m "..." || true
           git push
