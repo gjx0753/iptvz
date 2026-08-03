@@ -11,8 +11,8 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        # 修复：升级 v3 -> v4 以解决 Node.js 20 弃用警告
-        uses: actions/checkout@v4
+        # 修复：升级 v4 -> v5 以解决 Node.js 20 弃用警告
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0   
       
